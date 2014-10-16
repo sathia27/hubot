@@ -30,7 +30,8 @@ module.exports = (robot) ->
 
   robot.router.get "/hubot/talk", (req, res) ->
     message = req.query.message
-    robot.receive new TextMessage("Cleartrip", "Cleartrip "+message)
+    console.log message
+    robot.receive new TextMessage(req.query.mobile_number, "Cleartrip "+message)
     res.end()
 
   robot.router.get "/hubot/time", (req, res) ->
