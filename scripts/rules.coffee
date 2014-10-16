@@ -26,10 +26,3 @@ module.exports = (robot) ->
       msg.send otherRules.join('\n')
     else
       msg.send rules.join('\n')
-
-module.exports = (robot) ->
-  robot.respond /Hi i am (.*)|Hi*|Hey*/i, (msg) ->
-    text = msg.message.text
-    out = "Yo!" + (if msg.match[1] then  " " + msg.match[1] else "")
-    out += (if text.match(/how are|how r/i) then ". I am fine" else "")
-    msg.send out

@@ -18,6 +18,7 @@
 #   /hubot/ip
 
 spawn = require('child_process').spawn
+TextMessage = require("hubot").TextMessage
 
 module.exports = (robot) ->
 
@@ -26,6 +27,11 @@ module.exports = (robot) ->
 
   robot.router.post "/hubot/ping", (req, res) ->
     res.end "PONG"
+
+  robot.router.get "/hubot/talk", (req, res) ->
+    message = req.query.message
+    robot.receive new TextMessage("Cleartrip", "Cleartrip "+message)
+    res.end()
 
   robot.router.get "/hubot/time", (req, res) ->
     res.end "Server time is: #{new Date()}"
