@@ -26,14 +26,18 @@ module.exports = (robot) ->
    robot.hear /id proof/i, (msg) ->
      send_message msg, robot, "we strongly recommend that you carry a government–issued photo–id proof with you "
 
-   robot.hear /(hotel*|restaurants) (near|nearby) (.*)/, (msg) ->
-      console.log "!!!!1"
+   robot.hear /(hotel|restaurant|hotels|restaurants) (near|nearby|at|in) (.*)/i, (msg) ->
       place = msg.match[3]
-      console.log place
-      request.get url:'http://sw-search.cltp.com:9001/r1/smallworld-search/search/swplaces?qp=strict&qs=' + place , (err,httpResponse,body) ->
-        json_response = JSON.parse(body)
-        json_response = _.initial(json_body, 5)
-        msg.send json_response
+      request.get 'http://sw-search.cltp.com:9001/r1/smallworld-search/search/swplaces?qp=strict&qs=' +  encodeURIComponent(place), (err,httpResponse,body) ->
+        json_response = _.filter JSON.parse(body).results, (rec) -> rec.name? and rec.address?
+        json_response = _.first(json_response, [5])
+        if _.isEmpty(json_response)
+          send_message msg, robot, "Sorry we could not fetch " + msg.match[1] + " near " + place
+        else
+          names = _.map(json_response, (n) -> (n.name + ", " + n.address) if n.address?).join("\n\n")
+          send_message msg, robot, names
+
+
 
    robot.hear /hi/i, (msg) ->
      send_message msg, robot, "Yo!"
@@ -41,8 +45,6 @@ module.exports = (robot) ->
 
 send_message = (msg, robot, text) ->
   user = msg.message.user
-  console.log user
   data = {"message": text, "password": "wonderful", "action": "sendMessage", "from": "YOURNAME", "to": [parseInt(user)]}
   request.post url:'http://localhost/WhatsAPI/examples/whatsapp.php', form: data, (err,httpResponse,body) ->
-    console.log body
     msg.send text
